@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..availability import attendance_field
+from ..availability import attendance_field, handler, top_candidates
 from .db import GroupNotFound, load_group
-from .schemas import FieldResponse
+from .schemas import Block, FieldResponse
 
 router = APIRouter()
 
@@ -26,3 +26,23 @@ def get_field(group_id: str, min_duration: int = Query(1, ge=1)) -> FieldRespons
         field=attendance_field(data, min_duration),
         min_duration=min_duration,
     )
+
+
+@router.get("/groups/{group_id}/availability", response_model=list[Block])
+def get_availability(
+    group_id: str,
+    min_free: int = Query(..., ge=0),
+    min_duration: int = Query(1, ge=1),
+) -> list[dict]:
+    data = _load(group_id)
+    return handler(data, min_free, min_duration)
+
+
+@router.get("/groups/{group_id}/candidates", response_model=list[Block])
+def get_candidates(
+    group_id: str,
+    min_free: int = Query(..., ge=0),
+    k: int = Query(3, ge=1),
+) -> list[dict]:
+    data = _load(group_id)
+    return top_candidates(data, min_free, k)

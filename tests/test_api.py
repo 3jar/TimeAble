@@ -48,5 +48,33 @@ class FieldEndpointTest(unittest.TestCase):
         self.assertEqual(resp.status_code, 404)
 
 
+class AvailabilityEndpointTest(unittest.TestCase):
+    def test_availability_returns_blocks(self):
+        resp = client.get("/groups/dummy/availability", params={"min_free": 15, "min_duration": 2})
+        self.assertEqual(resp.status_code, 200)
+        blocks = resp.json()
+        self.assertIsInstance(blocks, list)
+        for b in blocks:
+            self.assertGreaterEqual(b["length"], 2)
+            self.assertGreaterEqual(b["min_free"], 15)
+            self.assertIn("attendance", b)
+
+    def test_availability_requires_min_free(self):
+        resp = client.get("/groups/dummy/availability")
+        self.assertEqual(resp.status_code, 422)  # min_free 필수
+
+    def test_candidates_sorted_and_limited(self):
+        resp = client.get("/groups/dummy/candidates", params={"min_free": 12, "k": 3})
+        self.assertEqual(resp.status_code, 200)
+        cands = resp.json()
+        self.assertLessEqual(len(cands), 3)
+        attendances = [c["attendance"] for c in cands]
+        self.assertEqual(attendances, sorted(attendances, reverse=True))
+
+    def test_candidates_unknown_group_404(self):
+        resp = client.get("/groups/nope/candidates", params={"min_free": 10})
+        self.assertEqual(resp.status_code, 404)
+
+
 if __name__ == "__main__":
     unittest.main()
