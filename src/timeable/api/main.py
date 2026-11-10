@@ -8,7 +8,10 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from .routes import router
+
 app = FastAPI(title="TimeAble API")
+app.include_router(router)
 
 
 @app.get("/health")

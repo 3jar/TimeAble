@@ -33,5 +33,20 @@ class LoadGroupTest(unittest.TestCase):
             load_group("nope")
 
 
+class FieldEndpointTest(unittest.TestCase):
+    def test_field_default_duration(self):
+        resp = client.get("/groups/dummy/field")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body["min_duration"], 1)
+        self.assertEqual(len(body["days"]), 5)
+        self.assertEqual(len(body["field"]), 5)       # 요일 5
+        self.assertEqual(len(body["field"][0]), 24)   # 칸 24
+
+    def test_field_unknown_group_404(self):
+        resp = client.get("/groups/nope/field")
+        self.assertEqual(resp.status_code, 404)
+
+
 if __name__ == "__main__":
     unittest.main()
