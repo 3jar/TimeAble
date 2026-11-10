@@ -128,6 +128,27 @@ TimeAble/                       # 루트 = Python 데이터 프로젝트
 4. 수위/필터 조절: 슬라이더 → `/availability`, `/candidates` 재호출 → 호수/추천 갱신.
 5. (부가) 투표: Supabase Realtime으로 깃발 반영 → 확정 → .ics 내보내기.
 
+## 배포 (분리 배포)
+
+세 조각을 각자 잘하는 매니지드 플랫폼에 올린다. 폴더 레이아웃은 바꾸지 않는다.
+
+| 조각 | 플랫폼 | 방법 |
+|---|---|---|
+| Next.js | **Vercel** | Root Directory = `web/` → Next.js만 빌드, 루트 Python은 무시 |
+| FastAPI | **Render** (또는 Railway) | Git 연결 + Python 런타임 build/start 커맨드 (Dockerfile 불필요) |
+| DB/Auth | **Supabase** | 이미 매니지드 |
+
+- "web/에 프레임워크 두 개" 아님: `web/`는 순수 Next.js, FastAPI는 루트 `src/timeable/`.
+  물리적으로 다른 폴더 + 다른 플랫폼이라 **빌드 충돌이 구조적으로 불가능**.
+- 전부 무료 티어 → 과제 비용 0.
+- 대안(지금은 안 함): Vercel Python serverless / Vercel Services로 한 배포에 합칠 수 있으나
+  Python을 Next.js 앱 안으로 재배치해야 해 과투자.
+
+**주의:**
+- Render 무료 티어는 유휴 15분 후 슬립(cold start) → 발표 직전 1회 깨우기. 상시 가동 원하면 Railway/유료.
+- FastAPI에 `CORSMiddleware`로 Vercel 도메인 허용. 인증은 프론트↔Supabase 직접, FastAPI는 JWT 검증만.
+- Supabase 키·FastAPI URL은 각 플랫폼 env로 주입.
+
 ## 에러 처리
 
 - FastAPI: Pydantic 검증 실패 → 422 자동. JWT 무효 → 401. 그룹 없음 → 404.
