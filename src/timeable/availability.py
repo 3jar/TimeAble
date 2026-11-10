@@ -124,6 +124,31 @@ def top_candidates(data: dict, min_free: int, k: int = 3) -> list[dict]:
     return blocks[:k]
 
 
+def attendance_field(data: dict, min_duration: int = 1) -> list[list[int]]:
+    """칸마다 '길이 min_duration 창 내내 비는 공통 인원 수'.
+
+    히트맵/지형 높이를 위한 스칼라 필드. 각 칸 (d,s)에서 창 [s, s+min_duration)
+    동안 모두 자유인 학생의 교집합 크기를 센다. 회의는 연속 블록이 필요하므로
+    고립된 한 칸의 자유는 긴 블록과 다르게 평가된다.
+
+    - min_duration=1 이면 free_counts 와 동일.
+    - 창이 요일 끝을 넘으면(회의가 하루 안에 안 들어가면) 0.
+    """
+    free_ids = _free_ids(data)
+    nd, ns = day_count(data), slot_count(data)
+    field = [[0] * ns for _ in range(nd)]
+    for d in range(nd):
+        for s in range(ns):
+            end = s + min_duration
+            if end > ns:
+                continue  # 창이 요일 밖 -> 0 유지
+            attendees = set(free_ids[d][s])
+            for t in range(s + 1, end):
+                attendees &= set(free_ids[d][t])
+            field[d][s] = len(attendees)
+    return field
+
+
 def _demo() -> None:
     """`uv run python -m timeable.availability` 로 동작을 눈으로 확인."""
     from pathlib import Path
