@@ -40,6 +40,37 @@ TimeAble은 등록한 학생 전원의 시간표를 합쳐 공통 빈 시간을 
                        └──────────────────────────────┘
 ```
 
+### 폴더 구조 (루트 = Python 데이터 프로젝트)
+
+FastAPI는 Django처럼 평행한 `backend/`를 만들지 않고, 기존 Python 패키지 안에
+하위 모듈로 녹아든다. 기존 루트 경로(`data/`, `src/timeable/`, `generate_dummy.py`)와
+`timeable-data` 스킬 참조가 그대로 유지된다.
+
+```
+TimeAble/                       # 루트 = Python 데이터 프로젝트
+├── pyproject.toml              # uv (기존, FastAPI 의존성 추가)
+├── generate_dummy.py           # 기존 유지
+├── data/dummy_students.json    # 기존 유지
+├── src/timeable/
+│   ├── schedule.py             # 기존 계산 코어
+│   ├── availability.py         # 기존 (+ attendance_field)
+│   └── api/                    # FastAPI 하위 모듈
+│       ├── main.py             #   app = FastAPI()
+│       ├── routes.py           #   /field, /availability, /candidates
+│       ├── schemas.py          #   Pydantic 모델
+│       ├── deps.py             #   Supabase JWT 검증
+│       └── db.py               #   Supabase 클라이언트
+├── tests/                      # 기존 + TestClient API 테스트
+├── web/                        # Next.js 프론트 (JS 세계는 여기만)
+│   ├── app/ · components/ · lib/supabase.ts · package.json
+├── supabase/                   # DB 스키마·마이그레이션 (supabase CLI)
+│   └── migrations/
+└── docs/
+```
+
+실행: 백엔드 `uv run uvicorn timeable.api.main:app --reload`, 프론트 `cd web && npm run dev`.
+두 프로세스, 한 저장소. FastAPI 내부는 지금은 평평한 4파일, 커지면 `routes/`를 디렉터리로 분할.
+
 ### 역할 분담
 
 - **Supabase** — 지루하지만 편한 것: 로그인(OAuth), 영속 저장, 그룹 공유(RLS),
@@ -126,4 +157,3 @@ TimeAble은 등록한 학생 전원의 시간표를 합쳐 공통 빈 시간을 
 ## 열린 질문 (기획안에서 이어짐)
 - 인원 비율 구간(소수/중간/다수) 경계값.
 - 시간 경계 "아쉬움" 겹침 허용치 (10분? 15분?).
-- 파일/디렉터리 레이아웃: 모노레포(`api/` + `web/`) vs 별도 저장소 — 구현 계획에서 확정.
