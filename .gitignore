@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# uv
+# uv.lock 은 커밋 권장 (재현성). 빌드 산출물만 무시.
+build/
+dist/
+*.egg-info/
+
+# env / secrets (Supabase 키 등)
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
