@@ -67,6 +67,7 @@ class AvailabilityEndpointTest(unittest.TestCase):
         resp = client.get("/groups/dummy/candidates", params={"min_free": 12, "k": 3})
         self.assertEqual(resp.status_code, 200)
         cands = resp.json()
+        self.assertGreater(len(cands), 0)  # 더미 데이터에서 실제 후보가 나와야 정렬 검증이 의미가 있다
         self.assertLessEqual(len(cands), 3)
         attendances = [c["attendance"] for c in cands]
         self.assertEqual(attendances, sorted(attendances, reverse=True))
