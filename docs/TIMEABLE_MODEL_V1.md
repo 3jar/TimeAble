@@ -98,14 +98,14 @@ $$
 
 $$
 H_i(D;t)=
-\sum_{\substack{k\in\mathcal A_i(t)\\D_{ik}\le D}}h_{ik}
+\sum_{k\in\mathcal A_i(t),\;D_{ik}\le D}h_{ik}
 $$
 
 개인 과제 부담은:
 
 $$
 P_i(t)=
-\max_{D\in\{D_{ik}:k\in\mathcal A_i(t)\}}
+\max_{D\in\lbrace D_{ik}:k\in\mathcal A_i(t)\rbrace}
 f\left(\frac{D-t}{1\text{시간}},H_i(D;t)\right)
 $$
 
@@ -119,13 +119,8 @@ $$
 
 수업 여부는 각 시각에서 0 또는 1이다.
 
-$$
-C_i(t)=
-\begin{cases}
-1 & \text{수업 중}\\
-0 & \text{수업 없음}
-\end{cases}
-$$
+- 수업 중이면 $C_i(t)=1$.
+- 수업이 없으면 $C_i(t)=0$.
 
 개인의 최종 부담 $B_i(t)$는 다음과 같다.
 
