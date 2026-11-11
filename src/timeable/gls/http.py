@@ -696,7 +696,7 @@ def submit_school_works_login(http, text, url, page, login_id, password):
     return follow_html(http, text, url, "frmMenu")
 
 
-def kingo_sso(http, login_id, password):
+def kingo_sso(http, login_id, password, ask=None):
     text, url = http.fetch("https://portal.skku.edu/index.do")
     text, url, page = follow_html(http, text, url, "LoginForm")
     if urlsplit(url).hostname != "login.skku.edu" or not page.form("LoginForm"):
@@ -730,7 +730,7 @@ def kingo_sso(http, login_id, password):
         headers={"Content-Type": "application/x-www-form-urlencoded"}, referer=login_url)
     text, url, page = follow_html(http, text, url, "frmMenu")
     text, url, page = submit_school_works_login(http, text, url, page, login_id, password)
-    text, url, page = finish_works_email(http, text, url, page)
+    text, url, page = finish_works_email(http, text, url, page, ask=ask)
     form = page.form("frmMenu")
     if not form or urlsplit(url).hostname != "portal.skku.edu":
         raise GLSError("지원하지 않는 추가 인증 화면으로 연결되었습니다.")
@@ -806,8 +806,8 @@ class GLSClient:
         text = self.request(path, body)
         return parse_ssv(decrypt_response(text, self.passphrase))
 
-    def login(self, login_id, password):
-        self.gls_url = kingo_sso(self.http, login_id, password)
+    def login(self, login_id, password, ask=None):
+        self.gls_url = kingo_sso(self.http, login_id, password, ask=ask)
         data = self.call("system/login/sessionLogin.do", "sessionLogin", outputs=LOGIN_DATASETS)
         info = first(data, "gdsUserInfo")
         self.passphrase = info.get("passphrase", "")
