@@ -9,6 +9,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .gls_routes import router as gls_router
 from .routes import router
 
 app = FastAPI(title="TimeAble API")
@@ -18,10 +19,11 @@ app = FastAPI(title="TimeAble API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 app.include_router(router)
+app.include_router(gls_router)
 
 
 @app.get("/health")

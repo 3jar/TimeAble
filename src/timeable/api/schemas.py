@@ -26,3 +26,31 @@ class FieldResponse(BaseModel):
     days: list[str]
     field: list[list[int]]  # [day][slot] = 창 내내 비는 공통 인원 수
     min_duration: int
+
+
+class ImportRequest(BaseModel):
+    """GLS 시간표 import 시작 요청."""
+
+    group_id: str
+    gls_id: str
+    gls_pw: str
+    year: int | None = None
+    semester: str | None = None
+
+
+class OtpRequest(BaseModel):
+    """import 진행중 OTP 제출."""
+
+    attempt_id: str
+    code: str
+
+
+class OtpRequired(BaseModel):
+    status: str = "OTP_REQUIRED"
+    attempt_id: str
+
+
+class ImportResult(BaseModel):
+    status: str = "IMPORTED"
+    group_id: str
+    courses: int
